@@ -6,12 +6,13 @@ class MyUserManager(BaseUserManager):
     def create_user(self, email, name, password=None):
         if not email:
             raise ValueError("Please enter an email as its mandatory")
-        email = self.email.normalize_email(email)
+
+        email = self.normalize_email(email)
         email = email.lower()
 
         user = self.model(
             email=email,
-            name=name
+            name=name,
         )
 
         user.set_password(password)
