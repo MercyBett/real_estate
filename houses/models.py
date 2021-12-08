@@ -28,7 +28,7 @@ class House(models.Model):
     home_type = models.CharField(max_length=50,
                                  choices=HomeType.choices, default=HomeType.APARTMENT)
     sale_type = models.CharField(
-        max_lenght=10, choices=SaleType.choices, default=SaleType.BUY)
+        max_length=10, choices=SaleType.choices, default=SaleType.BUY)
     main_photo = models.ImageField(upload_to='houses/')
     photo_2 = models.ImageField(upload_to='houses/')
     photo_3 = models.ImageField(upload_to='houses/')
