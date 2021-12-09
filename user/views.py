@@ -20,21 +20,25 @@ class RegisterView(APIView):
             password2 = data['password2']
             is_realtor = data['is_realtor']
 
+            if is_realtor == 'True':
+                is_realtor = True
+            else:
+                is_realtor = False
             if password == password2:
                 if len(password) >= 8:
-                    if not User.ojects.filter(email=email).exists():
-                        if is_realtor:
-                            User.objects.create_realtor(
-                                email=email, name=name, password=password)
-                            return Response(
-                                {'success': 'Realtor account created successfully'},
-                                status=status.HTTP_201_CREATED
-                            )
-                        else:
+                    if not User.objects.filter(email=email).exists():
+                        if not is_realtor:
                             User.objects.create_user(
                                 email=email, name=name, password=password)
                             return Response(
                                 {'success': 'User created successfully'},
+                                status=status.HTTP_201_CREATED
+                            )
+                        else:
+                            User.objects.create_realtor(
+                                email=email, name=name, password=password)
+                            return Response(
+                                {'success': 'Realtor account successfully created'},
                                 status=status.HTTP_201_CREATED
                             )
                     else:
@@ -52,10 +56,6 @@ class RegisterView(APIView):
                     {'error': 'Passwords do not match'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            if is_realtor == 'True':
-                is_realtor = True
-            else:
-                is_realtor = False
 
         except:
             return Response(
