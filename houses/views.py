@@ -1,3 +1,5 @@
-from django.shortcuts import render
-
-# Create your views here.
+class ManageHousesView():
+  def get():
+    pass
+  def post(self):
+    pass
