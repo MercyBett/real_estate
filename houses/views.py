@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 from .models import House
 from .serializers import HouseSerializer
 
@@ -163,5 +163,29 @@ class HouseDetailView(APIView):
         except:
             return Response(
                 {'error': 'something went wrong when retrieving house details'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class HousesView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, formats=None):
+        try:
+            if not House.objects.filter(is_published=True).exists():
+                return Response(
+                    {'error': 'No published houses found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            house = House.objects.order_by(
+                '-created_at').filter(is_published=True)
+            house = HouseSerializer(house)
+            return Response(
+                {'house': house.data},
+                status=status.HTTP_200_OK
+            )
+        except:
+            return Response(
+                {'error': 'something went wrong when retrieving houses'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
