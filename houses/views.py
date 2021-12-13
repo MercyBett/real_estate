@@ -19,6 +19,11 @@ class ManageHousesView(APIView):
             data = request.data
             title = data['title']
             slug = data['slug']
+            if House.objects.filter(slug=slug).exists():
+                return Response(
+                    {'error': 'House with this slug already exists'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             county = data['county']
             location = data['location']
             description = data['description']
@@ -75,6 +80,29 @@ class ManageHousesView(APIView):
                 is_published = True
             else:
                 is_published = False
+
+            House.objects.create(
+                realtor=user.email,
+                title=title,
+                slug=slug,
+                county=county,
+                location=location,
+                description=description,
+                price=price,
+                bedrooms=bedrooms,
+                bathrooms=bathrooms,
+                home_type=home_type,
+                sale_type=sale_type,
+                main_photo=main_photo,
+                photo_2=photo_2,
+                photo_3=photo_3,
+                photo_4=photo_4,
+                is_published=is_published
+            )
+            return Response(
+                {'success': 'House created successfully'},
+                status=status.HTTP_201_CREATED
+            )
         except:
             return Response(
                 {'error': 'something went wrong when retrieving houses'},
