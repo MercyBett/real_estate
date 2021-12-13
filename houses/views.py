@@ -11,7 +11,7 @@ class ManageHousesView(APIView):
             user = request.user
             if not user.is_realtor:
                 return Response(
-                    {'error': 'user does not have necessary permissions to create a house listing'},
+                    {'error': 'user does not have necessary permissions to get a house listing'},
                     status=status.HTTP_403_FORBIDDEN
                 )
             slug = request.query_params.get('slug')
@@ -140,4 +140,28 @@ class ManageHousesView(APIView):
             return Response(
                 {'error': 'something went wrong when retrieving houses'},
                 status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class HouseDetailView(APIView):
+    def get(self, request, format=None):
+        try:
+            slug = requets.query_params.get('slug')
+            if not slug:
+                return Response(
+                    {'error': 'kindly provide slug'},
+                    status=status.HTTP_400_BAD_REQUEST)
+            if not House.objects.filter(slug=slug, is_published=True).exists():
+                return Response(
+                    {'error': 'Published house with this slug is nonexistent'},
+                    status=status.HTTP_400_BAD_REQUEST)
+            house = House.objects.get(slug=slug, is_published=True)
+            house = HouseSerializer(house)
+            return Response(
+                {'house': house.data},
+                status=status.HTTP_200_OK)
+        except:
+            return Response(
+                {'error': 'something went wrong when retrieving house details'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
