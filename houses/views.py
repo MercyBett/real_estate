@@ -2,11 +2,44 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import House
+from .serializers import HouseSerializer
 
 
 class ManageHousesView(APIView):
     def get(self, request, format=None):
-        pass
+        try:
+            user = request.user
+            if not user.is_realtor:
+                return Response(
+                    {'error': 'user does not have necessary permissions to create a house listing'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            slug = request.query_params.get('slug')
+            if not slug:
+                house = House.objects.order_by('-created_at').filter(
+                    realtor=user.email
+                )
+                house = HouseSerializer(house, many=True)
+                return Response(
+                    {'Houses': house.data},
+                    status=status.HTTP_200_OK
+                )
+            if not House.objects.filter(realtor=user.email, slug=slug).exists():
+                return Response(
+                    {'error': 'House not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            house = House.objects.get(realtor=user.email, slug=slug)
+            house = HouseSerializer(house)
+            return Response(
+                {'house': house.data},
+                status=status.HTTP_200_OK
+            )
+        except:
+            return Response(
+                {'error': 'something went wrong when trying to get house details'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
     def post(self, request):
         try:
