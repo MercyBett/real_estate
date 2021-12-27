@@ -148,7 +148,7 @@ class ManageHousesView(APIView):
 class HouseDetailView(APIView):
     def get(self, request, format=None):
         try:
-            slug = requets.query_params.get('slug')
+            slug = request.query_params.get('slug')
             if not slug:
                 return Response(
                     {'error': 'kindly provide slug'},
