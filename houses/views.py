@@ -44,11 +44,7 @@ class ManageHousesView(APIView):
     def get_values(self, data):
         title = data['title']
         slug = data['slug']
-        if House.objects.filter(slug=slug).exists():
-            return Response(
-                {'error': 'House with this slug already exists'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+
         county = data['county']
         location = data['location']
         description = data['description']
@@ -106,6 +102,27 @@ class ManageHousesView(APIView):
         else:
             is_published = False
 
+        data = {
+
+            'title': title,
+            'slug': slug,
+            'county': county,
+            'location ': location,
+            'description': description,
+            'price ': price,
+            'bedrooms ': bedrooms,
+            'bathrooms ': bathrooms,
+            'home_type ': home_type,
+            'sale_type ': sale_type,
+            'main_photo': main_photo,
+            'photo_2 ': photo_2,
+            'photo_3': photo_3,
+            'photo_4': photo_4,
+            'is_published': is_published
+
+        }
+        return data
+
     def post(self, request):
         try:
             user = request.user
@@ -114,10 +131,88 @@ class ManageHousesView(APIView):
                     {'error': 'user does not have necessary permissions to create a house listing'},
                     status=status.HTTP_403_FORBIDDEN
                 )
-            data = request.data
 
+            data = request.data
+            data = self.get_values(data)
+            title = data['title']
+            slug = data['slug']
+            county = data['county']
+            location = data['location']
+            description = data['description']
+            price = data['price']
+            bedrooms = data['bedrooms']
+            bathrooms = data['bathrooms']
+            home_type = data['home_type']
+            sale_type = data['sale_type']
+            main_photo = data['main_photo']
+            photo_2 = data['photo_2']
+            photo_3 = data['photo_3']
+            photo_4 = data['photo_4']
+            is_published = data['is_published']
+            if House.objects.filter(slug=slug).exists():
+                return Response(
+                    {'error': 'House with this slug already exists'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             House.objects.create(
                 realtor=user.email,
+                title=title,
+                slug=slug,
+                county=county,
+                location=location,
+                description=description,
+                price=price,
+                bedrooms=bedrooms,
+                bathrooms=bathrooms,
+                home_type=home_type,
+                sale_type=sale_type,
+                main_photo=main_photo,
+                photo_2=photo_2,
+                photo_3=photo_3,
+                photo_4=photo_4,
+                is_published=is_published
+            )
+
+            return Response(
+                {'success': 'House created successfully'},
+                status=status.HTTP_201_CREATED
+            )
+        except:
+            return Response(
+                {'error': 'something went wrong when retrieving houses'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def put(self, request):
+        try:
+            user = request.user
+            if not user.is_realtor:
+                return Response({'error': 'User does not have permission to update house details'},
+                                status=status.HTTP_403_FORBIDDEN)
+
+            data = request.data
+            data = self.get_values(data)
+
+            title = data['title']
+            slug = data['slug']
+            county = data['county']
+            location = data['location']
+            description = data['description']
+            price = data['price']
+            bedrooms = data['bedrooms']
+            bathrooms = data['bathrooms']
+            home_type = data['home_type']
+            sale_type = data['sale_type']
+            main_photo = data['main_photo']
+            photo_2 = data['photo_2']
+            photo_3 = data['photo_3']
+            photo_4 = data['photo_4']
+            is_published = data['is_published']
+
+            if not House.objects.filter(realtor=user.email, slug=slug).update():
+                return Response({'error': 'House does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+            House.objects.filter(realtor=user.email, slug=slug).update(
                 title=title,
                 slug=slug,
                 county=county,
@@ -139,10 +234,8 @@ class ManageHousesView(APIView):
                 status=status.HTTP_201_CREATED
             )
         except:
-            return Response(
-                {'error': 'something went wrong when retrieving houses'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'error': 'something went wrong when trying to update house details'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class HouseDetailView(APIView):
