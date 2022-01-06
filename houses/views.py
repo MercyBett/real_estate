@@ -237,6 +237,32 @@ class ManageHousesView(APIView):
             return Response({'error': 'something went wrong when trying to update house details'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    def patch(self, request):
+        try:
+            user = request.user
+            if not user.is_realtor:
+                return Response(
+                    {'error': 'user does not have necessary permissions to create a house listing'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            data = request.data
+            slug = data['slug']
+            is_published = data['is_published']
+            if is_published == 'True':
+                is_published = True
+            else:
+                is_published = False
+
+            if not House.objects.filter(realtor=user.email, slug=slug).exists():
+                return Response({'error': 'House does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            House.objects.filter(realtor=user.email, slug=slug).update(
+                is_published=is_published
+            )
+            return Response({'success': 'House published status updated successfully '}, status=status.HTTP_200_OK)
+        except:
+            return Response({'error': 'something went wrong when trying to update house details'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class HouseDetailView(APIView):
     def get(self, request, format=None):
