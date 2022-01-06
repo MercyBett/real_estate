@@ -230,8 +230,8 @@ class ManageHousesView(APIView):
                 is_published=is_published
             )
             return Response(
-                {'success': 'House created successfully'},
-                status=status.HTTP_201_CREATED
+                {'success': 'House updated successfully'},
+                status=status.HTTP_200_OK
             )
         except:
             return Response({'error': 'something went wrong when trying to update house details'},
