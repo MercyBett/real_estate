@@ -263,6 +263,25 @@ class ManageHousesView(APIView):
             return Response({'error': 'something went wrong when trying to update house details'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    def delete(self, request):
+        try:
+            user = request.user
+            if not user.is_realtor:
+                return Response({'error': 'User does not have permission to delete this house'},
+                                status=status.HTTP_403_FORBIDDEN)
+            data = request.data
+            slug = data['slug']
+            if not House.objects.filter(realtor=user.email, slug=slug).exists():
+                return Response({'error': 'The House you are trying to delete does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            House.objects.filter(realtor=user.email, slug=slug).delete()
+            if not House.objects.filter(realtor=user.email, slug=slug).exists():
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({'error': 'Failed to delete the House'}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'error': 'something went wrong when trying to delete the house'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class HouseDetailView(APIView):
     def get(self, request, format=None):
