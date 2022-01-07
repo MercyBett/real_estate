@@ -36,5 +36,12 @@ class House(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_published = models.BooleanField(default=False)
 
+    def delete(self):
+        self.main_photo.storage.delete(self.main_photo.name)
+        self.photo_2.storage.delete(self.photo_2.name)
+        self.photo_3.storage.delete(self.photo_3.name)
+        self.photo_4.storage.delete(self.photo_4.name)
+        super().delete()
+
     def __str__(self):
         return self.title
