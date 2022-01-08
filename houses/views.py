@@ -329,3 +329,20 @@ class HousesView(APIView):
                 {'error': 'something went wrong when retrieving houses'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class SearchHouseView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request, form=None):
+        try:
+            search = request.query_params.get('search')
+            houses = House.objects.filter(title_search=search)
+
+            print('houses')
+            print(houses)
+            for house in houses:
+                print(house.title)
+            return Response({"success": "The search was successful"}, status=status.HTTP_200_OK)
+        except:
+            return Response({'error': 'something went wrong with the house search'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
