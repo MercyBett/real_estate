@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HousesView, ManageHousesView, HouseDetailView, HousesView, SearchHouseView
+from .views import HousesView, ManageHousesView, HouseDetailView,  SearchHouseView
 
 urlpatterns = [
     path('manage', ManageHousesView.as_view()),
