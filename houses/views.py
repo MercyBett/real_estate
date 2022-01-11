@@ -53,26 +53,17 @@ class ManageHousesView(APIView):
         try:
             price = int(price)
         except:
-            return Response(
-                {'error': 'price must be an integer'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return -1
         bedrooms = data['bedrooms']
         try:
             bedrooms = int(bedrooms)
         except:
-            return Response(
-                {'error': 'bedrooms must be an integer'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return -2
         bathrooms = data['bathrooms']
         try:
             bathrooms = float(bathrooms)
         except:
-            return Response(
-                {'error': 'bathrooms must be a decimal number'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return -3
         if bathrooms <= 0 or bathrooms >= 10:
             bathrooms = 1.0
 
@@ -135,6 +126,23 @@ class ManageHousesView(APIView):
 
             data = request.data
             data = self.get_values(data)
+
+            if data == -1:
+                return Response(
+                    {'error': 'price must be an integer'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            elif data == -2:
+                return Response(
+                    {'error': 'bedrooms must be an integer'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            elif data == -3:
+                return Response(
+                    {'error': 'bathrooms must be a decimal number'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             title = data['title']
             slug = data['slug']
             county = data['county']
@@ -193,6 +201,22 @@ class ManageHousesView(APIView):
 
             data = request.data
             data = self.get_values(data)
+
+            if data == -1:
+                return Response(
+                    {'error': 'price must be an integer'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            elif data == -2:
+                return Response(
+                    {'error': 'bedrooms must be an integer'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            elif data == -3:
+                return Response(
+                    {'error': 'bathrooms must be a decimal number'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
             title = data['title']
             slug = data['slug']
