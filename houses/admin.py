@@ -23,6 +23,11 @@ class MultiDBAdmin(admin.ModelAdmin):
 
 class HouseAdmin(MultiDBAdmin):
     using = 'houses'
+    list_display = ('id', 'realtor', 'title', 'slug')
+    list_display_links = ('id', 'realtor', 'title', 'slug')
+    list_filter = ('realtor',)
+    search_fields = ('title', 'description',)
+    list_per_page = 20
 
 
 admin.site.register(House, HouseAdmin)

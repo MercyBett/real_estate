@@ -7,6 +7,10 @@ User = get_user_model()
 
 class UserAdmin(admin.ModelAdmin):
     using = 'users'
+    list_display = ('id', 'name', 'email', 'password')
+    list_display_links = ('id', 'name', 'email', 'password')
+    search_fields = ('name', 'email',)
+    list_per_page = 20
 
     def save_model(self, request, obj, form, change):
         obj.save = (using=self.using)
