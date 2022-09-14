@@ -20,44 +20,40 @@ class RegisterView(APIView):
             password2 = data['password2']
             is_realtor = data['is_realtor']
 
-            if is_realtor == 'True':
-                is_realtor = True
-            else:
-                is_realtor = False
-            if password == password2:
-                if len(password) >= 8:
-                    if not User.objects.filter(email=email).exists():
-                        if not is_realtor:
-                            User.objects.create_user(
-                                email=email, name=name, password=password)
-                            return Response(
-                                {'success': 'User created successfully'},
-                                status=status.HTTP_201_CREATED
-                            )
-                        else:
-                            User.objects.create_realtor(
-                                email=email, name=name, password=password)
-                            return Response(
-                                {'success': 'Realtor account successfully created'},
-                                status=status.HTTP_201_CREATED
-                            )
-                    else:
-                        return Response(
-                            {'error': 'User with this email already exists'},
-                            status=status.HTTP_400_BAD_REQUEST
-                        )
-                else:
-                    return Response(
-                        {'error': 'Password has to be at least 8 characters long'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-            else:
+            is_realtor = is_realtor == 'True'
+            if password != password2:
                 return Response(
                     {'error': 'Passwords do not match'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-        except:
+            if len(password) >= 8:
+                if not User.objects.filter(email=email).exists():
+                    if not is_realtor:
+                        User.objects.create_user(
+                            email=email, name=name, password=password)
+                        return Response(
+                            {'success': 'User created successfully'},
+                            status=status.HTTP_201_CREATED
+                        )
+                    else:
+                        User.objects.create_realtor(
+                            email=email, name=name, password=password)
+                        return Response(
+                            {'success': 'Realtor account successfully created'},
+                            status=status.HTTP_201_CREATED
+                        )
+                else:
+                    return Response(
+                        {'error': 'User with this email already exists'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            else:
+                return Response(
+                    {'error': 'Password has to be at least 8 characters long'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except Exception:
             return Response(
                 {'error': 'Something went wrong when registering the user'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

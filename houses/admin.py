@@ -6,10 +6,12 @@ from .models import House
 
 class MultiDBAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
-        obj.save = (using=self.using)
+        obj.user = request.user
+        super().save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
-        obj.delete = (using=self.using)
+        obj.user = request.user
+        super().delete_model(obj)
 
     def get_queryset(self, request):
         return super().get_queryset(request).using(self.using)

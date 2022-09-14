@@ -7,10 +7,10 @@ from django.contrib.postgres.search import SearchVector, SearchQuery
 
 
 class ManageHousesView(APIView):
-    def get(self, request, format=None):
-        try:
-            user = request.user
-            if not user.is_realtor:
+  def get(self, request, format=None):
+    try:
+      user = request.user
+        if not user.is_realtor:
                 return Response(
                     {'error': 'user does not have necessary permissions to get a house listing'},
                     status=status.HTTP_403_FORBIDDEN
