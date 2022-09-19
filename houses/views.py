@@ -360,86 +360,83 @@ class SearchHouseView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request, form=None):
+      try:
+        county = request.query_params.get('county')
+        location = request.query_params.get('location')
+        description = request.query_params.get('description')
+        max_price = request.query_params.get('max_price')
         try:
-            county = request.query_params.get('county')
-            location = request.query_params.get('location')
-            description = request.query_params.get('description')
-            max_price = request.query_params.get('max_price')
-            try:
-                price = int(price)
-            except:
-                return Response(
-                    {'error': 'price must be an integer'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            bedrooms = request.query_params.get('bedrooms')
-            try:
-                bedrooms = int(bedrooms)
-            except:
-                return Response(
-                    {'error': 'bedrooms must be an integer'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            bathrooms = request.query_params.get('bathrooms')
-            try:
-                bathrooms = float(bathrooms)
-            except:
-                return Response(
-                    {'error': 'bathrooms must be a decimal value'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            if bathrooms <= 0 or bathrooms >= 10:
-                bathrooms = 1.0
+          price = int(price)
+        except Exception:
+          return Response(
+              {'error': 'price must be an integer'},
+              status=status.HTTP_400_BAD_REQUEST
+          )
+        bedrooms = request.query_params.get('bedrooms')
+        try:
+          bedrooms = int(bedrooms)
+        except Exception:
+          return Response(
+              {'error': 'bedrooms must be an integer'},
+              status=status.HTTP_400_BAD_REQUEST
+          )
+        bathrooms = request.query_params.get('bathrooms')
+        try:
+          bathrooms = float(bathrooms)
+        except Exception:
+          return Response(
+              {'error': 'bathrooms must be a decimal value'},
+              status=status.HTTP_400_BAD_REQUEST
+          )
+        if bathrooms <= 0 or bathrooms >= 10:
+            bathrooms = 1.0
 
-            bathrooms = round(bathrooms, 1)
-            home_type = request.query_params.get('home_type')
-            if home_type == 'APARTMENT':
-                home_type = 'Apartment'
-            elif home_type == 'BUNGALOW':
-                home_type = 'Bungalow'
-            elif home_type == 'STUDIO':
-                home_type = 'Studio'
-            elif home_type == 'TOWNHOUSE':
-                home_type = 'Townhouse'
-            else:
-                home_type = 'Maisonette'
-            sale_type = request.query_params.get('sale_type')
-            if sale_type == 'RENT':
-                sale_type = 'For Rent'
-            else:
-                sale_type = 'For Sale'
-            search = request.query_params.get('search')
-            if not search:
-                return Response({'error': 'Missing search criteria'}, status=status.HTTP_400_BAD_REQUEST)
+        bathrooms = round(bathrooms, 1)
+        home_type = request.query_params.get('home_type')
+        if home_type == 'APARTMENT':
+            home_type = 'Apartment'
+        elif home_type == 'BUNGALOW':
+            home_type = 'Bungalow'
+        elif home_type == 'STUDIO':
+            home_type = 'Studio'
+        elif home_type == 'TOWNHOUSE':
+            home_type = 'Townhouse'
+        else:
+            home_type = 'Maisonette'
+        sale_type = request.query_params.get('sale_type')
+        sale_type = 'For Rent' if sale_type == 'RENT' else 'For Sale'
+        search = request.query_params.get('search')
+        if not search:
+            return Response({'error': 'Missing search criteria'}, status=status.HTTP_400_BAD_REQUEST)
 
-            vector = SearchVector('title', 'location')
-            query = SearchQuery(search)
+        vector = SearchVector('title', 'location')
+        query = SearchQuery(search)
 
-            if not House.objects.annotate(search=vector
-                                          ).filter(
-                search=query,
-                county=county,
-                location=location,
-                price__lte=max_price,
-                bedrooms__gte=bedrooms,
-                bathrooms__gte=bathrooms,
-                home_type=home_type,
-                sale_type=sale_type
-            ).exists():
-                return Response({'error': 'No house with this search criteria'}, status=status.HTTP_404_NOT_FOUND)
+        if not House.objects.annotate(search=vector
+                                      ).filter(
+            search=query,
+            county=county,
+            location=location,
+            price__lte=max_price,
+            bedrooms__gte=bedrooms,
+            bathrooms__gte=bathrooms,
+            home_type=home_type,
+            sale_type=sale_type
+        ).exists():
+            return Response({'error': 'No house with this search criteria'}, status=status.HTTP_404_NOT_FOUND)
 
-            houses = House.objects.annotate(search=vector
-                                            ).filter(
-                search=query,
-                county=county,
-                location=location,
-                price__lte=max_price,
-                bedrooms__gte=bedrooms,
-                bathrooms__gte=bathrooms,
-                home_type=home_type,
-                sale_type=sale_type)
-            houses = HouseSerializer(houses, many=True)
-            return Response({'houses': houses.data}, status=status.HTTP_200_OK)
+        houses = House.objects.annotate(search=vector
+                                        ).filter(
+            search=query,
+            county=county,
+            location=location,
+            price__lte=max_price,
+            bedrooms__gte=bedrooms,
+            bathrooms__gte=bathrooms,
+            home_type=home_type,
+            sale_type=sale_type)
+        houses = HouseSerializer(houses, many=True)
+        return Response({'houses': houses.data}, status=status.HTTP_200_OK)
 
-        except:
-            return Response({'error': 'something went wrong with the house search'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+      except Exception:
+        return Response({'error': 'something went wrong with the house search'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
