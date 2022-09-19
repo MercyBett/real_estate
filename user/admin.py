@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 User = get_user_model()
+from houses.deletion import remove_realtor_data
 
 
 
@@ -16,7 +17,9 @@ class UserAdmin(admin.ModelAdmin):
         obj.save(using=self.using)
 
     def delete_model(self, request, obj):
-        obj.delete(using=self.using)
+      email=obj.email
+      obj.delete(using=self.using)
+      remove_realtor_data(email)
 
     def get_queryset(self, request):
         return super().get_queryset(request).using(self.using)
