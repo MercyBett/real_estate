@@ -2,21 +2,21 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-# Register your models here.
+
 
 
 class UserAdmin(admin.ModelAdmin):
-    using = 'users'
+    using = 'user'
     list_display = ('id', 'name', 'email', 'password')
     list_display_links = ('id', 'name', 'email', 'password')
     search_fields = ('name', 'email',)
     list_per_page = 20
 
     def save_model(self, request, obj, form, change):
-        obj.save = (using=self.using)
+        obj.save(using=self.using)
 
     def delete_model(self, request, obj):
-        obj.delete = (using=self.using)
+        obj.delete(using=self.using)
 
     def get_queryset(self, request):
         return super().get_queryset(request).using(self.using)
