@@ -13,7 +13,6 @@ class RegisterView(APIView):
         try:
             data = request.data
 
-            name = data['name']
             email = data['email']
             email = email.lower()
             password = data['password']
@@ -29,6 +28,7 @@ class RegisterView(APIView):
 
             if len(password) >= 8:
                 if not User.objects.filter(email=email).exists():
+                    name = data['name']
                     if not is_realtor:
                         User.objects.create_user(
                             email=email, name=name, password=password)
@@ -70,7 +70,7 @@ class RetrieveView(APIView):
                 {'user': user.data},
                 status=status.HTTP_200_OK
             )
-        except:
+        except Exception:
             return Response(
                 {'error': 'Something went wrong when retrieving the user'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
