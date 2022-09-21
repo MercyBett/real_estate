@@ -11,7 +11,7 @@ class ManageHousesView(APIView):
     try:
       user = request.user
       if not user.is_realtor:
-                return Response(
+        return Response(
                     {'error': 'user does not have necessary permissions to get a house listing'},
                     status=status.HTTP_403_FORBIDDEN
                 )

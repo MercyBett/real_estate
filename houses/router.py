@@ -2,14 +2,10 @@ class HousesRouter:
     route_app_labels = {'house'}
 
     def db_for_read(self, model, **hints):
-        if model._meta.app_label in self.route_app_labels:
-            return 'houses'
-        return None
+        return 'houses' if model._meta.app_label in self.route_app_labels else None
 
     def db_for_write(self, model, **hints):
-        if model._meta.app_label in self.route_app_labels:
-            return 'houses'
-        return None
+        return 'houses' if model._meta.app_label in self.route_app_labels else None
 
     def allow_relation(self, obj1, obj2, **hints):
         if (
@@ -20,6 +16,4 @@ class HousesRouter:
         return None
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        if app_label in self.route_app_labels:
-            return db == 'houses'
-        return None
+        return db == 'houses' if app_label in self.route_app_labels else None
